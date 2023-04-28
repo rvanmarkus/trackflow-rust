@@ -205,7 +205,7 @@ export function Menu() {
           <MenubarItem inset>Add Account...</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-      <ExamplesNav />
+      {/* <ExamplesNav /> */}
       <div
         data-tauri-drag-region
         className="inline-flex justify-end h-full w-full"
