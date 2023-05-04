@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { open as openDialog } from "@tauri-apps/api/dialog"
 import { invoke } from "@tauri-apps/api/tauri"
 import { Plus } from "lucide-react"
@@ -19,9 +19,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ButtonLoading } from "@/components/examples/button/loading"
 
+const addMusicByFilePath = async (filePath: string) => {
+  const id: number = await invoke("add_track_by_file", { filePath })
+  if (!id) throw Error("Error adding track")
+  return id
+}
 export const AddMusicDialog: React.FC = () => {
   const query = useQueryClient()
+  const {
+    mutateAsync: addTrackByFilePath,
+    isLoading,
+    isError,
+    error,
+  } = useMutation({
+    mutationKey: ["track"],
+    mutationFn: addMusicByFilePath,
+  })
   const [open, setOpen] = useState(false)
   const filePathInputRef = useRef<HTMLInputElement>()
   const onMusicFileSelect = useCallback(() => {
@@ -46,7 +61,7 @@ export const AddMusicDialog: React.FC = () => {
   const onAddMusic = useCallback(async () => {
     if (!filePathInputRef.current?.value) return
     const filePath = filePathInputRef.current.value
-    const result = await invoke("add_track_by_file", { filePath })
+    const result = await addTrackByFilePath(filePath)
     console.log({ result })
     await query.invalidateQueries({ queryKey: ["tracks"] })
     setOpen(false)
@@ -105,9 +120,9 @@ export const AddMusicDialog: React.FC = () => {
 
           <div className="grid gap-4 py-4"></div>
           <DialogFooter>
-            <Button onClick={() => onAddMusic()}>
+            {isLoading ? <ButtonLoading /> : <Button onClick={() => onAddMusic()}>
               <span>Add music</span>
-            </Button>
+            </Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>
