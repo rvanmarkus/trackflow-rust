@@ -17,13 +17,13 @@ pub fn establish_connection() -> SqliteConnection {
 }
 
 
-pub fn create_track(conn: &mut SqliteConnection, title: &str, artist: &str, filepath: &str) -> usize {
-    use crate::schema::tracks;
+// pub fn create_track(conn: &mut SqliteConnection, title: &str, artist: &str, filepath: &str) -> usize {
+//     use crate::schema::tracks;
 
-    let new_track = NewTrack { title, artist, filepath };
+//     let new_track = NewTrack { title, artist, filepath };
 
-    diesel::insert_into(tracks::table)
-        .values(&new_track)
-        .execute(conn)
-        .expect("Error saving new track")
-}
+//     diesel::insert_into(tracks::table)
+//         .values(&new_track)
+//         .execute(conn)
+//         .expect("Error saving new track")
+// }

@@ -8,6 +8,7 @@ pub struct Track {
     pub artist: String,
     pub filepath: String,
     pub published: bool,
+    pub bpm: Option<i32>
 }
 
 #[derive(Insertable)]
@@ -16,4 +17,5 @@ pub struct NewTrack<'a> {
     pub title: &'a str,
     pub artist: &'a str,
     pub filepath: &'a str,
+    pub bpm: Option<i32>,
 }

@@ -7,5 +7,6 @@ diesel::table! {
         artist -> Text,
         filepath -> Text,
         published -> Bool,
+        bpm -> Nullable<Integer>,
     }
 }

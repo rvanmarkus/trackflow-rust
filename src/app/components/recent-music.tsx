@@ -12,6 +12,7 @@ export type Track = {
   title: String
   artist: string
   filepath: string
+  bpm?: number
 }
 async function getTracks() {
   console.log("getTracks")
@@ -55,7 +56,7 @@ export const RecentMusic: React.FC = () => {
                     {track.filepath}
                   </p>
                 </div>
-                <div className="ml-auto font-medium">128<span className="font-light text-xs">bpm</span></div>
+                {track.bpm && <div className="ml-auto font-medium">{track.bpm}<span className="font-light text-xs">bpm</span></div>}
               </div>
             )
           })}
