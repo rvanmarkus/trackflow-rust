@@ -7,8 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 
 import { MusicEmptyPlaceholder } from "./music-empty-placeholder"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { ButtonLoading } from "@/components/examples/button/loading"
 
 export type Track = {
+  id: number
   title: String
   artist: string
   filepath: string
@@ -25,16 +28,16 @@ async function getTracks() {
   }
 }
 export const RecentMusic: React.FC = () => {
-  const [tracks, setTracks] = useState<Track[] | undefined>()
-  useEffect(() => {
-    getTracks().then((res) => {
-      setTracks(res)
-    })
-  }, [setTracks])
+  const queryClient = useQueryClient()
 
+  // Queries
+  const {data: tracks, isLoading} = useQuery({ queryKey: ['tracks'], queryFn: getTracks })
+ 
   console.log([tracks])
-
-  if (!tracks || tracks?.length < 1) {
+  if (isLoading) {
+    return <ButtonLoading />
+  }
+  if (!tracks?.length || tracks?.length < 1) {
     return <MusicEmptyPlaceholder />
   }
   return (
@@ -43,7 +46,7 @@ export const RecentMusic: React.FC = () => {
         <div className="space-y-8">
           {tracks.map((track) => {
             return (
-              <div className="flex items-center">
+              <div className="flex items-center" key={track.id}>
                 <Avatar className="h-9 w-9">
                   <AvatarImage src="/avatars/01.png" alt="Avatar" />
                   <AvatarFallback>OM</AvatarFallback>

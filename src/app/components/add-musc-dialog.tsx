@@ -1,8 +1,9 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { invoke } from "@tauri-apps/api/tauri";
+import { useQueryClient } from "@tanstack/react-query"
 import { open as openDialog } from "@tauri-apps/api/dialog"
+import { invoke } from "@tauri-apps/api/tauri"
 import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const AddMusicDialog: React.FC = () => {
+  const query = useQueryClient()
   const [open, setOpen] = useState(false)
   const filePathInputRef = useRef<HTMLInputElement>()
   const onMusicFileSelect = useCallback(() => {
@@ -46,6 +48,8 @@ export const AddMusicDialog: React.FC = () => {
     const filePath = filePathInputRef.current.value
     const result = await invoke("add_track_by_file", { filePath })
     console.log({ result })
+    await query.invalidateQueries({ queryKey: ["tracks"] })
+    setOpen(false)
   }, [filePathInputRef])
   return (
     <>

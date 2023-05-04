@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use diesel::prelude::*;
 use id3::{Error, ErrorKind, Tag, TagLike, Version};
 use tauri_ui::{models::NewTrack, models::Track, *};
@@ -34,7 +36,12 @@ pub fn add_track_by_file(file_path: &str) -> usize {
     };
 
     let new_post = NewTrack {
-        title: tag.title().unwrap_or(file_path),
+        title: tag.title().unwrap_or(
+            Path::new(file_path)
+                .file_name()
+                .map(|f| f.to_str().unwrap())
+                .expect("Wrong file path"),
+        ),
         filepath: file_path,
         artist: tag.artist().unwrap_or("Unknown Artist"),
         bpm: tag
