@@ -53,7 +53,7 @@ export function Menu() {
   return (
     <Menubar className="rounded-none border-b border-none pl-2 lg:pl-4">
       <MenubarMenu>
-        <MenubarTrigger className="font-bold">App</MenubarTrigger>
+        <MenubarTrigger className="font-bold">TrackFlow</MenubarTrigger>
         <MenubarContent>
           <MenubarItem>About Music</MenubarItem>
           <MenubarSeparator />

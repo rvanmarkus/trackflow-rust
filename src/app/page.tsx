@@ -16,13 +16,15 @@ import { PlusCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { AddMusicDialog } from "./components/add-musc-dialog"
+import { invoke } from "@tauri-apps/api/tauri";
+import { RecentMusic } from "./components/recent-music"
 
 export const metadata: Metadata = {
   title: "Music App",
   description: "Example music app using the components.",
 }
 
-export default function MusicPage() {
+export default async function MusicPage() {  
   return (
     <div>
       {/* <Menu /> */}
@@ -120,7 +122,7 @@ export default function MusicPage() {
                     </div>
                   </div>
                   <Separator className="my-4" />
-                  <MusicEmptyPlaceholder />
+                  <RecentMusic />
                 </TabsContent>
               </Tabs>
             </div>

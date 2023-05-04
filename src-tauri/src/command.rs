@@ -1,0 +1,43 @@
+use diesel::prelude::*;
+use id3::{Error, ErrorKind, Tag, TagLike, Version};
+use tauri_ui::{models::NewTrack, models::Track, *};
+
+#[tauri::command]
+pub fn get_tracks() -> Vec<Track> {
+    use self::schema::tracks::dsl::*;
+
+    let connection: &mut SqliteConnection = &mut establish_connection();
+    let results = tracks
+        .filter(published.eq(false))
+        .load::<Track>(connection)
+        .expect("Error loading posts");
+
+    println!("Displaying {} posts", results.len());
+    for post in &results {
+        println!("{}", post.title);
+        println!("-----------\n");
+        println!("{}", post.artist);
+    }
+    return results;
+}
+#[tauri::command]
+pub fn add_track_by_file(file_path: &str) -> usize {
+    use tauri_ui::schema::tracks;
+    let connection: &mut SqliteConnection = &mut establish_connection();
+    let tag = match Tag::read_from_path(file_path) {
+        Ok(tag) => tag,
+        Err(Error{kind: ErrorKind::NoTag, ..}) => Tag::new(),
+        Err(err) => panic!("Error reading MP3 {}", err),
+    };
+    
+    let new_post = NewTrack {
+        title: tag.title().unwrap_or(file_path),
+        filepath: file_path,
+        artist: tag.artist().unwrap_or("Unknown Artist"),
+    };
+
+    diesel::insert_into(tracks::table)
+        .values(&new_post)
+        .execute(connection)
+        .expect("Error saving new post")
+}

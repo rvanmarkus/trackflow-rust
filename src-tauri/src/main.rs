@@ -4,6 +4,10 @@
     windows_subsystem = "windows"
 )]
 
+use crate::command::add_track_by_file;
+use crate::command::get_tracks;
+
+mod command;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -11,8 +15,9 @@ fn greet(name: &str) -> String {
 }
 
 fn main() {
+    
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, add_track_by_file, get_tracks])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
