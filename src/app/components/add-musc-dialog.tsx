@@ -6,6 +6,7 @@ import { open as openDialog } from "@tauri-apps/api/dialog"
 import { invoke } from "@tauri-apps/api/tauri"
 import { Plus } from "lucide-react"
 
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -97,7 +98,7 @@ export const AddMusicDialog: React.FC = () => {
                     id="filename"
                     placeholder="/music-folder/file.mp3"
                     ref={filePathInputRef}
-                  />
+                    />
                   <Button onClick={onMusicFileSelect}>Browse</Button>
                 </div>
               </div>
@@ -106,7 +107,7 @@ export const AddMusicDialog: React.FC = () => {
             <TabsContent
               value="folder"
               className="border-none p-0 outline-none"
-            >
+              >
               <div className="grid gap-2">
                 <Label htmlFor="folder">Music folder</Label>
                 <div className="flex">
@@ -119,10 +120,20 @@ export const AddMusicDialog: React.FC = () => {
           </Tabs>
 
           <div className="grid gap-4 py-4"></div>
+            {isError && typeof error === "string" && (
+              <Alert variant="destructive">
+                Something went wrong
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
           <DialogFooter>
-            {isLoading ? <ButtonLoading /> : <Button onClick={() => onAddMusic()}>
-              <span>Add music</span>
-            </Button>}
+            {isLoading ? (
+              <ButtonLoading />
+              ) : (
+                <Button onClick={() => onAddMusic()}>
+                <span>Add music</span>
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -23,7 +23,7 @@ pub fn get_tracks() -> Vec<Track> {
     return results;
 }
 #[tauri::command]
-pub fn add_track_by_file(file_path: &str) -> usize {
+pub fn add_track_by_file(file_path: &str) -> Result<String, String> {
     use tauri_ui::schema::tracks;
     let connection: &mut SqliteConnection = &mut establish_connection();
     let tag = match Tag::read_from_path(file_path) {
@@ -32,7 +32,7 @@ pub fn add_track_by_file(file_path: &str) -> usize {
             kind: ErrorKind::NoTag,
             ..
         }) => Tag::new(),
-        Err(err) => panic!("Error reading MP3 {}", err),
+        Err(err) => return Err("Error reading MP3".into()),
     };
 
     let new_post = NewTrack {
@@ -58,8 +58,9 @@ pub fn add_track_by_file(file_path: &str) -> usize {
             .unwrap_or(Option::None),
     };
 
-    diesel::insert_into(tracks::table)
+    return diesel::insert_into(tracks::table)
         .values(&new_post)
         .execute(connection)
-        .expect("Error saving new post")
+        .map(|result| Ok(result.to_string()))
+        .unwrap_or(Err("Error saving track".into()));
 }
