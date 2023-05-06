@@ -1,5 +1,6 @@
 pub mod models;
 pub mod schema;
+pub mod events;
 use diesel::{sqlite::SqliteConnection, prelude::*};
 use dotenvy::dotenv;
 use std::env;

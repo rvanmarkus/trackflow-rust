@@ -2,7 +2,8 @@ use std::path::Path;
 
 use diesel::prelude::*;
 use id3::{Error, ErrorKind, Tag, TagLike, Version};
-use tauri_ui::{models::NewTrack, models::Track, *};
+use tauri::Window;
+use tauri_ui::{events::TrackCreated, models::NewTrack, models::Track, *};
 
 #[tauri::command]
 pub fn get_tracks() -> Vec<Track> {
@@ -23,7 +24,7 @@ pub fn get_tracks() -> Vec<Track> {
     return results;
 }
 #[tauri::command]
-pub fn add_track_by_file(file_path: &str) -> Result<String, String> {
+pub fn add_track_by_file(file_path: &str, window: Window) -> Result<String, String> {
     use tauri_ui::schema::tracks;
     let connection: &mut SqliteConnection = &mut establish_connection();
     let tag = match Tag::read_from_path(file_path) {
@@ -35,7 +36,20 @@ pub fn add_track_by_file(file_path: &str) -> Result<String, String> {
         Err(err) => return Err("Error reading MP3".into()),
     };
 
-    let new_post = NewTrack {
+    let bpm = tag
+        .get("TBPM")
+        .and_then(|frame| {
+            frame.content().text().map(|value| {
+                value
+                    .trim()
+                    .parse::<i32>()
+                    .map(|bpm| Some(bpm))
+                    .unwrap_or(None)
+            })
+        })
+        .unwrap_or(Option::None);
+
+    let new_track = NewTrack {
         title: tag.title().unwrap_or(
             Path::new(file_path)
                 .file_name()
@@ -44,23 +58,24 @@ pub fn add_track_by_file(file_path: &str) -> Result<String, String> {
         ),
         filepath: file_path,
         artist: tag.artist().unwrap_or("Unknown Artist"),
-        bpm: tag
-            .get("TBPM")
-            .and_then(|frame| {
-                frame.content().text().map(|value| {
-                    value
-                        .trim()
-                        .parse::<i32>()
-                        .map(|bpm| Some(bpm))
-                        .unwrap_or(None)
-                })
-            })
-            .unwrap_or(Option::None),
+        bpm,
     };
-
+    
     return diesel::insert_into(tracks::table)
-        .values(&new_post)
+        .values(&new_track)
         .execute(connection)
+        .and_then(|result| {
+             window
+                .emit(
+                    "track-created",
+                    TrackCreated {
+                        bpm,
+                        file_path: file_path.to_string(),
+                    },
+                )
+                .unwrap();
+            Ok(result)
+        })
         .map(|result| Ok(result.to_string()))
         .unwrap_or(Err("Error saving track".into()));
 }
