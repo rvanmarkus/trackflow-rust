@@ -15,7 +15,7 @@
       "all": false,
       "shell": {
         "all": false,
-        "open": true
+        "open": "^*"
       },
       "dialog": {
         "all": false,
@@ -24,6 +24,9 @@
         "message": true,
         "open": true,
         "save": true
+      },
+      "path": {
+        "all": true
       },
       "window": { "all": true }
     },

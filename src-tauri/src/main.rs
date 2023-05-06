@@ -6,6 +6,7 @@
 
 use crate::command::add_track_by_file;
 use crate::command::get_tracks;
+use crate::command::remove_track;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use tauri_ui::establish_connection;
 
@@ -29,7 +30,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             add_track_by_file,
-            get_tracks
+            get_tracks,
+            remove_track
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

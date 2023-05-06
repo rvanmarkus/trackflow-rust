@@ -66,7 +66,7 @@ export const AddMusicDialog: React.FC = () => {
     console.log({ result })
     await query.invalidateQueries({ queryKey: ["tracks"] })
     setOpen(false)
-  }, [filePathInputRef])
+  }, [filePathInputRef, query])
   return (
     <>
       <Button size="sm" onClick={() => setOpen(true)}>

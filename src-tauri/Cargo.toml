@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "2.0.0-alpha.4", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-alpha.8", features = ["dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "shell-open", "window-all"] }
+tauri = { version = "2.0.0-alpha.8", features = ["dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "path-all", "shell-open", "window-all"] }
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.96"
 id3 = "1.7.0"
@@ -21,6 +21,7 @@ diesel = { version = "2.0.0", features = ["sqlite"] }
 diesel_migrations = "2.0.0"
 libsqlite3-sys = { version = "0.26.0", features = ["bundled"] }
 dotenvy = "0.15"
+musicbrainz_rs = "0.5.0"
 
 [features]
 # by default Tauri runs in production mode

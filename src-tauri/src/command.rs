@@ -15,13 +15,17 @@ pub fn get_tracks() -> Vec<Track> {
         .load::<Track>(connection)
         .expect("Error loading posts");
 
-    println!("Displaying {} posts", results.len());
-    for post in &results {
-        println!("{}", post.title);
-        println!("-----------\n");
-        println!("{}", post.artist);
-    }
     return results;
+}
+#[tauri::command]
+pub async fn remove_track(track_id: i32) -> Result<(), String> {
+    use self::schema::tracks::dsl::*;
+    let connection: &mut SqliteConnection = &mut establish_connection();
+
+    return diesel::delete(tracks.find(track_id))
+        .execute(connection)
+        .map(|_| return Ok(()))
+        .unwrap_or(Err("Error removing track".into()));
 }
 #[tauri::command]
 pub fn add_track_by_file(file_path: &str, window: Window) -> Result<String, String> {
@@ -60,12 +64,12 @@ pub fn add_track_by_file(file_path: &str, window: Window) -> Result<String, Stri
         artist: tag.artist().unwrap_or("Unknown Artist"),
         bpm,
     };
-    
+
     return diesel::insert_into(tracks::table)
         .values(&new_track)
         .execute(connection)
         .and_then(|result| {
-             window
+            window
                 .emit(
                     "track-created",
                     TrackCreated {

@@ -1,7 +1,8 @@
 use super::schema::tracks;
 use diesel::prelude::*;
 
-#[derive(serde::Serialize, Queryable)]
+#[derive(serde::Serialize, Queryable, Selectable, Identifiable)]
+#[diesel(table_name = tracks)]
 pub struct Track {
     pub id: i32,
     pub title: String,
