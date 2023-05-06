@@ -1,13 +1,13 @@
 pub mod models;
 pub mod schema;
 pub mod events;
+pub mod bpm;
+
 use diesel::{sqlite::SqliteConnection, prelude::*};
 use dotenvy::dotenv;
 use std::env;
 
 use crate::models::NewTrack;
-
-
 
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();

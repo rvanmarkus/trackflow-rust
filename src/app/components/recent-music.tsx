@@ -7,7 +7,7 @@ import { open } from "@tauri-apps/api/shell"
 import { invoke } from "@tauri-apps/api/tauri"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -16,28 +16,11 @@ import {
 } from "@/components/ui/context-menu"
 import { ButtonLoading } from "@/components/examples/button/loading"
 
+import { getTracks } from "../commands"
+import { Track } from "../data/track"
 import { MusicEmptyPlaceholder } from "./music-empty-placeholder"
+import { TrackRowCard } from "./track-row-card"
 
-export type Track = {
-  id: number
-  title: String
-  artist: string
-  filepath: string
-  bpm?: number
-}
-async function openTrackFilePathFolder(filepath: string): Promise<void> {
-  await open(await dirname(filepath))
-}
-async function getTracks() {
-  if (typeof window !== "undefined") {
-    console.log("getTracks")
-    return await invoke<Track[]>("get_tracks")
-  }
-}
-async function removeTrackCommand(trackId: number): Promise<void> {
-  console.log(`removing ${trackId}`)
-  await invoke("remove_track", { trackId })
-}
 export const RecentMusic: React.FC = () => {
   const queryClient = useQueryClient()
 
@@ -50,12 +33,7 @@ export const RecentMusic: React.FC = () => {
     queryKey: ["tracks"],
     queryFn: getTracks,
   })
-  const { mutate: removeTrack } = useMutation({
-    mutationFn: removeTrackCommand,
-    onSuccess: () => refetch(),
-  })
 
-  console.log([tracks])
   if (isLoading) {
     return <ButtonLoading />
   }
@@ -64,50 +42,14 @@ export const RecentMusic: React.FC = () => {
   }
   return (
     <Card>
+      <CardHeader>
+        <p>{tracks.length} tracks</p>
+      </CardHeader>
       <CardContent>
         <div className="space-y-8">
-          {tracks.map((track) => {
-            return (
-              <div key={track.id}>
-                <ContextMenu key={track.id}>
-                  <ContextMenuTrigger>
-                    <div className="flex items-center">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                        <AvatarFallback>OM</AvatarFallback>
-                      </Avatar>
-                      <div className="ml-4 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {track.title} - {track?.artist}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {track.filepath}
-                        </p>
-                      </div>
-                      {track.bpm && (
-                        <div className="ml-auto font-medium">
-                          {track.bpm}
-                          <span className="font-light text-xs">bpm</span>
-                        </div>
-                      )}
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem>Play</ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => openTrackFilePathFolder(track.filepath)}
-                    >
-                      Open in file explorer
-                    </ContextMenuItem>
-                    <ContextMenuItem>Analyse BPM</ContextMenuItem>
-                    <ContextMenuItem onClick={() => removeTrack(track.id)}>
-                      Remove from library
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              </div>
-            )
-          })}
+          {tracks.map((track) => (
+            <TrackRowCard track={track} key={track.id} />
+          ))}
         </div>
       </CardContent>
     </Card>

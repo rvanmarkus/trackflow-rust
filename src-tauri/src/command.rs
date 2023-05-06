@@ -1,9 +1,9 @@
 use std::path::Path;
 
-use diesel::prelude::*;
+use diesel::{connection, prelude::*};
 use id3::{Error, ErrorKind, Tag, TagLike, Version};
 use tauri::Window;
-use tauri_ui::{events::TrackCreated, models::NewTrack, models::Track, *};
+use tauri_ui::{bpm::analyse_bpm, events::TrackCreated, models::NewTrack, models::Track, *};
 
 #[tauri::command]
 pub fn get_tracks() -> Vec<Track> {
@@ -26,6 +26,21 @@ pub async fn remove_track(track_id: i32) -> Result<(), String> {
         .execute(connection)
         .map(|_| return Ok(()))
         .unwrap_or(Err("Error removing track".into()));
+}
+#[tauri::command]
+pub async fn analyse_bpm_track(track_id: i32) -> Result<String, String> {
+    use self::schema::tracks::dsl::*;
+    let connection: &mut SqliteConnection = &mut establish_connection();
+    let track: Track = tracks.find(track_id).first::<Track>(connection).unwrap();
+
+    diesel::update(tracks.find(track_id))
+        .set(
+            bpm.eq(analyse_bpm(track.filepath)
+                .map(|result| Some(result))
+                .unwrap_or(None)),
+        )
+        .execute(connection).unwrap();
+    Ok("done".into())
 }
 #[tauri::command]
 pub fn add_track_by_file(file_path: &str, window: Window) -> Result<String, String> {

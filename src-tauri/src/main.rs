@@ -4,18 +4,10 @@
     windows_subsystem = "windows"
 )]
 
-use crate::command::add_track_by_file;
-use crate::command::get_tracks;
-use crate::command::remove_track;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use tauri_ui::establish_connection;
 
 mod command;
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
 fn main() {
@@ -28,10 +20,10 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet,
-            add_track_by_file,
-            get_tracks,
-            remove_track
+            command::add_track_by_file,
+            command::get_tracks,
+            command::analyse_bpm_track,
+            command::remove_track
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
