@@ -22,11 +22,8 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ButtonLoading } from "@/components/examples/button/loading"
 
-const addMusicByFilePath = async (filePath: string) => {
-  const id: number = await invoke("add_track_by_file", { filePath })
-  if (!id) throw Error("Error adding track")
-  return id
-}
+import { addMusicByFilePath } from "../commands"
+
 export const AddMusicDialog: React.FC = () => {
   const query = useQueryClient()
   const {
@@ -39,6 +36,7 @@ export const AddMusicDialog: React.FC = () => {
     mutationFn: addMusicByFilePath,
   })
   const [open, setOpen] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const filePathInputRef = useRef<HTMLInputElement>()
   const onMusicFileSelect = useCallback(() => {
     ;(async () => {
@@ -54,19 +52,21 @@ export const AddMusicDialog: React.FC = () => {
       if (!selected || selected.length < 1) {
         return
       }
-      const [filename] = selected
-      filePathInputRef.current.value = filename
+      console.log({ selected })
+      filePathInputRef.current.value = selected.join(", ")
+      setSelectedFiles(selected)
     })()
-  }, [filePathInputRef, openDialog])
+  }, [filePathInputRef, openDialog, setSelectedFiles])
 
   const onAddMusic = useCallback(async () => {
     if (!filePathInputRef.current?.value) return
-    const filePath = filePathInputRef.current.value
-    const result = await addTrackByFilePath(filePath)
-    console.log({ result })
+    for (const file of selectedFiles) {
+      const result = await addTrackByFilePath(file)
+      console.log({ result })
+    }
     await query.invalidateQueries({ queryKey: ["tracks"] })
     setOpen(false)
-  }, [filePathInputRef, query])
+  }, [selectedFiles, query, addTrackByFilePath])
   return (
     <>
       <Button size="sm" onClick={() => setOpen(true)}>
@@ -98,7 +98,8 @@ export const AddMusicDialog: React.FC = () => {
                     id="filename"
                     placeholder="/music-folder/file.mp3"
                     ref={filePathInputRef}
-                    />
+                    disabled
+                  />
                   <Button onClick={onMusicFileSelect}>Browse</Button>
                 </div>
               </div>
@@ -107,7 +108,7 @@ export const AddMusicDialog: React.FC = () => {
             <TabsContent
               value="folder"
               className="border-none p-0 outline-none"
-              >
+            >
               <div className="grid gap-2">
                 <Label htmlFor="folder">Music folder</Label>
                 <div className="flex">
@@ -120,17 +121,17 @@ export const AddMusicDialog: React.FC = () => {
           </Tabs>
 
           <div className="grid gap-4 py-4"></div>
-            {isError && typeof error === "string" && (
-              <Alert variant="destructive">
-                Something went wrong
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          {isError && typeof error === "string" && (
+            <Alert variant="destructive">
+              Something went wrong
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <DialogFooter>
             {isLoading ? (
               <ButtonLoading />
-              ) : (
-                <Button onClick={() => onAddMusic()}>
+            ) : (
+              <Button onClick={() => onAddMusic()}>
                 <span>Add music</span>
               </Button>
             )}

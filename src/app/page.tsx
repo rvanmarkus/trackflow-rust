@@ -16,7 +16,6 @@ import { PlusCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { AddMusicDialog } from "./components/add-musc-dialog"
-import { invoke } from "@tauri-apps/api/tauri";
 import { RecentMusic } from "./components/recent-music"
 
 export const metadata: Metadata = {

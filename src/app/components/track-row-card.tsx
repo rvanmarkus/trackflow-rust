@@ -1,3 +1,5 @@
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2Icon } from "lucide-react"
