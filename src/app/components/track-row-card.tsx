@@ -10,6 +10,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { Icons } from "@/components/icons"
 
 import {
   analyseBpmForTrackCommand,
@@ -17,7 +18,6 @@ import {
   removeTrackCommand,
 } from "../commands"
 import { Track } from "../data/track"
-import { Icons } from "@/components/icons"
 
 export const TrackRowCard: React.FC<{ track: Track }> = ({ track }) => {
   const queryClient = useQueryClient()
@@ -28,7 +28,12 @@ export const TrackRowCard: React.FC<{ track: Track }> = ({ track }) => {
     mutationFn: removeTrackCommand,
     onSuccess: invalidateAllTracks,
   })
-  const { mutate: analyseBpm, isLoading: isAnalyzing } = useMutation({
+  const {
+    mutate: analyseBpm,
+    isLoading: isAnalyzing,
+    isError: failedAnalyzing,
+    error: analyzingError,
+  } = useMutation({
     mutationFn: analyseBpmForTrackCommand,
     onSuccess: invalidateAllTracks,
   })
@@ -51,6 +56,11 @@ export const TrackRowCard: React.FC<{ track: Track }> = ({ track }) => {
               <div className="ml-auto font-medium">
                 {track.bpm}
                 <span className="font-light text-xs">bpm</span>
+              </div>
+            )}
+            {failedAnalyzing && (
+              <div className="ml-auto font-medium">
+                <Icons.warning className="ml-4 font-medium h-4 w-4 " />
               </div>
             )}
             {isAnalyzing && (
